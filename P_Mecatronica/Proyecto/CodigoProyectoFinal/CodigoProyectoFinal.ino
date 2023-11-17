@@ -18,7 +18,7 @@ volatile long pulses = 0; //Ponemos los pulsos en cero
 
 void IRAM_ATTR PulsesCounter(){
   if (digitalRead(EncB) == HIGH && digitalRead(EncB2)== HIGH ){     // si B es HIGH, sentido horario
-    pulses++ ;        // incrementa PULSES en 1
+    pulses++ ;        // incrementa PULSES en 
   }
   else {          // si B es LOW, sentido anti horario
     pulses-- ;        // decrementa el PULSES en 1
