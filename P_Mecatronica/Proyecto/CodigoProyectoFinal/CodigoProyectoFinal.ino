@@ -12,7 +12,9 @@
 //Manda pulsos al encoder
 #define EncB2 4 //Lee los pulsos del encoder
 
-
+#include "BluetoothSerial.h"
+BluetoothSerial SerialBT;
+char dato;
 
 volatile long pulses = 0; //Ponemos los pulsos en cero
 
@@ -42,10 +44,26 @@ void setup() { //Declara las variables del puente H como outputs y las del encod
   attachInterrupt(digitalPinToInterrupt(EncA), PulsesCounter, RISING); //Cada vez que hacemos una interrupción llamamos al PulseCounter
   attachInterrupt(digitalPinToInterrupt(EncA2), PulsesCounter, RISING); //Cada vez que hacemos una interrupción llamamos al PulseCounter
   Serial.begin(115200); //Inicializamos el serial en 115200 baudios
+  SerialBT.begin("Equipo1ESP");
 }
 
 void loop() {
+  if (SerialBT.available()) {
+      dato = SerialBT.read();
+      if (dato == 'a'){
+        movimientoAdelante();
+      }else if (dato == 'r'){
+        movimientoReversa();
+      }
+      else if (dato == 'i'){
+        movimientoIzquierda();
+      }
+      else if (dato == 'd'){
+        movimientoDerecha();
+      }
+  }
 
+  delay(4000);
   
 
 }
@@ -72,11 +90,14 @@ void movimientoReversa(){
     delay(5000);
 }
 
-void movimientoDerecha(){
+void movimientoIzquierda(){
     digitalWrite(IN3, LOW);
     digitalWrite(IN4, HIGH);
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, LOW);
+    digitalWrite(ENB,HIGH); //habilitamos el motor a través del puente H
+    digitalWrite(ENA, LOW); 
+    Serial.println("Derecha"); //Imprimimos "Levógiro"
     delay(5000);
 }
 
@@ -85,5 +106,8 @@ void movimientoDerecha(){
     digitalWrite(IN4, LOW);
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, HIGH);
+    digitalWrite(ENB,HIGH); //habilitamos el motor a través del puente H
+    digitalWrite(ENA, LOW); 
+    Serial.println("Izquierda"); //Imprimimos "Levógiro"
     delay(5000);
 }
