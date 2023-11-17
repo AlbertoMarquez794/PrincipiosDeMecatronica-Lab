@@ -45,57 +45,45 @@ void setup() { //Declara las variables del puente H como outputs y las del encod
 }
 
 void loop() {
-  int anterior, posterior; //declaramos las variables anterior y posterior
-  digitalWrite(IN3,LOW); //apagamos giro a la izquierda
-  digitalWrite(IN4,HIGH); //encendemos giro a la derecha
-  digitalWrite(ENA,HIGH); //habilitamos el motor a través del puente HH
-  /*--------------------------*/
-  digitalWrite(IN1,LOW); //apagamos giro a la izquierda
-  digitalWrite(IN2,HIGH); //encendemos giro a la derecha
-  digitalWrite(ENB,HIGH); //habilitamos el motor a través del puente H
 
-
-  Serial.println("Dextrógiro"); //Imprimimos "Dextrógiro"
-  anterior = pulses; //Definimos "anterior" como la cantidad de pulsos
-
-  delay(3000); //Esperamos 3 segundos
   
-  posterior = pulses; //Definimos "posterior" como la cantidad de pulsos actual
-  Serial.print("Número de vuletas: "); //Imprimimos el cartel del número de vueltas
-  Serial.println((anterior-posterior)/373); //Definimos la resta entre los pulsos anteriores y los actuales, 
-  //como los pulsos que realmente dio, los convertimos a vueltas dividiendo entre 373 (cantidad de pulsos en una vuelta a la derecha)
 
-  digitalWrite(IN3,LOW); //apagamos giro a la izquierda
-  digitalWrite(IN4,LOW); //apagamos giro a la derecha
-  digitalWrite(ENA,HIGH); //habilitamos el motor a través del puente H
-  digitalWrite(IN1,LOW); //apagamos giro a la izquierda
-  digitalWrite(IN2,LOW); //apagamos giro a la derecha
-  digitalWrite(ENB,HIGH); //habilitamos el motor a través del puente H
+}
 
-  delay(2000); //Esperamos 2 segundos
+void movimientoAdelante(){
+    digitalWrite(IN3,LOW); //apagamos giro a la izquierda
+    digitalWrite(IN4,HIGH); //encendemos giro a la derecha
+    digitalWrite(ENA,HIGH); //habilitamos el motor a través del puente HH
+    digitalWrite(IN1,LOW); //apagamos giro a la izquierda
+    digitalWrite(IN2,HIGH); //encendemos giro a la derecha
+    digitalWrite(ENB,HIGH); //habilitamos el motor a través del puente H
+    Serial.println("Adelante"); //Imprimimos "Dextrógiro"
+    delay(5000);
+}
 
-  digitalWrite(IN3,HIGH); //encendemos giro a la izquierda
-  digitalWrite(IN4,LOW); //apagamos giro a la derecha
-  digitalWrite(ENA,HIGH); //habilitamos el motor a través del puente H
-  digitalWrite(IN1,HIGH); //encendemos giro a la izquierda
-  digitalWrite(IN2,LOW); //apagamos giro a la derecha
-  digitalWrite(ENB,HIGH); //habilitamos el motor a través del puente H
-  Serial.println("Levógiro"); //Imprimimos "Levógiro"
-  anterior = pulses; //Definimos "anterior" como la cantidad de pulsos
+void movimientoReversa(){
+    digitalWrite(IN3,HIGH); //encendemos giro a la izquierda
+    digitalWrite(IN4,LOW); //apagamos giro a la derecha
+    digitalWrite(ENA,HIGH); //habilitamos el motor a través del puente H
+    digitalWrite(IN1,HIGH); //encendemos giro a la izquierda
+    digitalWrite(IN2,LOW); //apagamos giro a la derecha
+    digitalWrite(ENB,HIGH); //habilitamos el motor a través del puente H
+    Serial.println("Atras"); //Imprimimos "Levógiro"
+    delay(5000);
+}
 
-  delay(3000); //Esperamos 3 segundos
+void movimientoDerecha(){
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, HIGH);
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, LOW);
+    delay(5000);
+}
 
-  digitalWrite(IN1,LOW); //apagamos giro a la izquierda
-  digitalWrite(IN2,LOW); //apagamos giro a la derecha
-  digitalWrite(IN3,LOW); //apagamos giro a la izquierda
-  digitalWrite(IN4,LOW); //apagamos giro a la derecha
-  digitalWrite(ENA,HIGH); //habilitamos el motor a través del puente H
-  digitalWrite(ENB,HIGH); //habilitamos el motor a través del puente H
-  Serial.print("Número de vueltas: "); //Imprimimos el cartel del número de vueltas
-  posterior = pulses; //Definimos "posterior" como la cantidad de pulsos actual
-  Serial.println((anterior - posterior)/450); //Definimos la resta entre los pulsos anteriores y los actuales,
-  //como los pulsos que realmente dio, los convertimos a vueltas dividiendo entre 450(cantidad de pulsos en una vuelta a la izquierda)
-
-  delay(2000); //Esperamos 2 segundos
-
+void movimientoDerecha(){
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, LOW);
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, HIGH);
+    delay(5000);
 }
