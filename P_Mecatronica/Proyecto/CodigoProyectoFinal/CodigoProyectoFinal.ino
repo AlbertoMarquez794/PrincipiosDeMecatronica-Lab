@@ -1,3 +1,7 @@
+#include "BluetoothSerial.h"
+BluetoothSerial SerialBT;
+char dato;
+
 #define IN1 33 //Declara el giro del motor a la izquierda (2)
 #define IN2 25 //Declara el giro del motor a la derecha (2)
 /*--------------------------------------------------*/
@@ -12,9 +16,6 @@
 //Manda pulsos al encoder
 #define EncB2 4 //Lee los pulsos del encoder
 
-#include "BluetoothSerial.h"
-BluetoothSerial SerialBT;
-char dato;
 
 volatile long pulses = 0; //Ponemos los pulsos en cero
 
@@ -48,25 +49,23 @@ void setup() { //Declara las variables del puente H como outputs y las del encod
 }
 
 void loop() {
-  if (SerialBT.available()) {
-      dato = SerialBT.read();
-      if (dato == 'a'){
-        movimientoAdelante();
-      }else if (dato == 'r'){
-        movimientoReversa();
-      }
-      else if (dato == 'i'){
-        movimientoIzquierda();
-      }
-      else if (dato == 'd'){
-        movimientoDerecha();
-      }
-  }
-
-  delay(4000);
-  
-
+    movimientoAdelante();
+    detenido();
+    movimientoReversa();
+    detenido();
+    movimientoDerecha();
+    detenido();
+    movimientoIzquierda();
+    detenido();
 }
+
+void detenido(){
+    digitalWrite(ENA,LOW); //habilitamos el motor a través del puente HH
+    digitalWrite(ENB,LOW); //habilitamos el motor a través del puente H
+    Serial.println("Detenido"); //Imprimimos "Dextrógiro"
+    delay(5000);
+}
+
 
 void movimientoAdelante(){
     digitalWrite(IN3,LOW); //apagamos giro a la izquierda
@@ -76,7 +75,6 @@ void movimientoAdelante(){
     digitalWrite(IN2,HIGH); //encendemos giro a la derecha
     digitalWrite(ENB,HIGH); //habilitamos el motor a través del puente H
     Serial.println("Adelante"); //Imprimimos "Dextrógiro"
-    delay(5000);
 }
 
 void movimientoReversa(){
@@ -86,10 +84,7 @@ void movimientoReversa(){
     digitalWrite(IN1,HIGH); //encendemos giro a la izquierda
     digitalWrite(IN2,LOW); //apagamos giro a la derecha
     digitalWrite(ENB,HIGH); //habilitamos el motor a través del puente H
-    Serial.println("Atras"); //Imprimimos "Levógiro"
-    delay(5000);
 }
-
 void movimientoIzquierda(){
     digitalWrite(IN3, LOW);
     digitalWrite(IN4, HIGH);
@@ -98,16 +93,17 @@ void movimientoIzquierda(){
     digitalWrite(ENB,HIGH); //habilitamos el motor a través del puente H
     digitalWrite(ENA, LOW); 
     Serial.println("Derecha"); //Imprimimos "Levógiro"
-    delay(5000);
 }
 
 void movimientoDerecha(){
+    movimientoAdelante();
+    delay(100);
+    
     digitalWrite(IN3, LOW);
     digitalWrite(IN4, LOW);
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, HIGH);
-    digitalWrite(ENB,HIGH); //habilitamos el motor a través del puente H
-    digitalWrite(ENA, LOW); 
+    digitalWrite(ENB, LOW); //habilitamos el motor a través del puente H
+    digitalWrite(ENA, HIGH); 
     Serial.println("Izquierda"); //Imprimimos "Levógiro"
-    delay(5000);
 }
