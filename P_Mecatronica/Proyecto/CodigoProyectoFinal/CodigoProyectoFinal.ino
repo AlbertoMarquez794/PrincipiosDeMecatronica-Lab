@@ -1,20 +1,29 @@
 #include "BluetoothSerial.h"
+#include <Arduino.h>
+#include <ESP32Encoder.h>
 BluetoothSerial SerialBT;
 char dato;
 
 #define IN1 33 //Declara el giro del motor a la izquierda (2)
 #define IN2 25 //Declara el giro del motor a la derecha (2)
+#define ENB 14 //Permite la activacion de un motor en el puente H (2)
+#define EncA2 16
+//Manda pulsos al encoder
+#define EncB2 4 //Lee los pulsos del encoder
+/*--------------------------------------------------*/
+
+int channel = 0;        // Define una variable llamada "channel" y la inicializa en 0
+int freq = 1000;        // Define una variable llamada "freq" y la inicializa en 1000
+int resolution = 12;    // Define una variable llamada "resolution" y la inicializa en 12
 /*--------------------------------------------------*/
 #define IN3 26 //Declara el giro del motor a la izquierda
 #define IN4 27 //Declara el giro del motor a la derecha
 #define ENA 32 //Permite la activación de un motor en el puente H
-#define ENB 14 //Permite la activacion de un motor en el puente H (2)
+
 #define EncA 2
 //Manda pulsos al encoder
 #define EncB 15 //Lee los pulsos del encoder
-#define EncA2 16
-//Manda pulsos al encoder
-#define EncB2 4 //Lee los pulsos del encoder
+
 
 
 volatile long pulses = 0; //Ponemos los pulsos en cero
@@ -32,50 +41,33 @@ void setup() { //Declara las variables del puente H como outputs y las del encod
   pinMode(IN3,OUTPUT);
   pinMode(IN4,OUTPUT);
   pinMode(ENA,OUTPUT);
-  
-  pinMode(IN1,OUTPUT);
-  pinMode(IN2,OUTPUT);
-  pinMode(ENB,OUTPUT);
-  
-  pinMode(EncA,INPUT);
-  pinMode(EncB,INPUT);
-  pinMode(EncA2, INPUT);
-  pinMode(EncB2, INPUT);
-  
-  attachInterrupt(digitalPinToInterrupt(EncA), PulsesCounter, RISING); //Cada vez que hacemos una interrupción llamamos al PulseCounter
-  attachInterrupt(digitalPinToInterrupt(EncA2), PulsesCounter, RISING); //Cada vez que hacemos una interrupción llamamos al PulseCounter
-  Serial.begin(115200); //Inicializamos el serial en 115200 baudios
-  SerialBT.begin("Equipo1ESP");
-}
+
+  pinMode(EncA, INPUT);
+  pinMode(EncB, INPUT);
+} 
 
 void loop() {
     movimientoAdelante();
     detenido();
-    movimientoReversa();
-    detenido();
-    movimientoDerecha();
-    detenido();
-    movimientoIzquierda();
-    detenido();
+
 }
 
 void detenido(){
     digitalWrite(ENA,LOW); //habilitamos el motor a través del puente HH
     digitalWrite(ENB,LOW); //habilitamos el motor a través del puente H
     Serial.println("Detenido"); //Imprimimos "Dextrógiro"
-    delay(5000);
+    delay(2000);
 }
 
 
 void movimientoAdelante(){
-    digitalWrite(IN3,LOW); //apagamos giro a la izquierda
-    digitalWrite(IN4,HIGH); //encendemos giro a la derecha
-    digitalWrite(ENA,HIGH); //habilitamos el motor a través del puente HH
-    digitalWrite(IN1,LOW); //apagamos giro a la izquierda
-    digitalWrite(IN2,HIGH); //encendemos giro a la derecha
-    digitalWrite(ENB,HIGH); //habilitamos el motor a través del puente H
-    Serial.println("Adelante"); //Imprimimos "Dextrógiro"
+     encoder.attachFullQuad(EncA, EncB);
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, HIGH);
+    analogWrite(motorPWM, 125);
+    delay(5000)
 }
+
 
 void movimientoReversa(){
     digitalWrite(IN3,HIGH); //encendemos giro a la izquierda
