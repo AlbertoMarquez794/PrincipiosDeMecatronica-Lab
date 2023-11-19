@@ -1,101 +1,127 @@
-#include "BluetoothSerial.h"
-#include <Arduino.h>
-#include <ESP32Encoder.h>
-BluetoothSerial SerialBT;
-char dato;
-
 #define IN1 33 //Declara el giro del motor a la izquierda (2)
 #define IN2 25 //Declara el giro del motor a la derecha (2)
-#define ENB 14 //Permite la activacion de un motor en el puente H (2)
-#define EncA2 16
-//Manda pulsos al encoder
-#define EncB2 4 //Lee los pulsos del encoder
-/*--------------------------------------------------*/
-
-int channel = 0;        // Define una variable llamada "channel" y la inicializa en 0
-int freq = 1000;        // Define una variable llamada "freq" y la inicializa en 1000
-int resolution = 12;    // Define una variable llamada "resolution" y la inicializa en 12
 /*--------------------------------------------------*/
 #define IN3 26 //Declara el giro del motor a la izquierda
 #define IN4 27 //Declara el giro del motor a la derecha
 #define ENA 32 //Permite la activación de un motor en el puente H
+#define ENB 14 //Permite la activacion de un motor en el puente H (2)
+/*-------------------*/
+//LCD
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 
-#define EncA 2
-//Manda pulsos al encoder
-#define EncB 15 //Lee los pulsos del encoder
 
-
-
+#include "BluetoothSerial.h"
+BluetoothSerial SerialBT;
+char dato;
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 volatile long pulses = 0; //Ponemos los pulsos en cero
-
-void IRAM_ATTR PulsesCounter(){
-  if (digitalRead(EncB) == HIGH && digitalRead(EncB2)== HIGH ){     // si B es HIGH, sentido horario
-    pulses++ ;        // incrementa PULSES en 
-  }
-  else {          // si B es LOW, sentido anti horario
-    pulses-- ;        // decrementa el PULSES en 1
-  }
-}
 
 void setup() { //Declara las variables del puente H como outputs y las del encoder como inputs
   pinMode(IN3,OUTPUT);
   pinMode(IN4,OUTPUT);
   pinMode(ENA,OUTPUT);
+  
+  pinMode(IN1,OUTPUT);
+  pinMode(IN2,OUTPUT);
+  pinMode(ENB,OUTPUT);
 
-  pinMode(EncA, INPUT);
-  pinMode(EncB, INPUT);
-} 
-
-void loop() {
-    movimientoAdelante();
-    detenido();
-
+  Serial.begin(115200); //Inicializamos el serial en 115200 baudios
+  SerialBT.begin("Equipo1ESP");
+  lcd.init();
+  lcd.backlight();
 }
 
-void detenido(){
-    digitalWrite(ENA,LOW); //habilitamos el motor a través del puente HH
-    digitalWrite(ENB,LOW); //habilitamos el motor a través del puente H
-    Serial.println("Detenido"); //Imprimimos "Dextrógiro"
+void loop() {
+  movimientoAdelante();
+  parar();
+  movimientoIzquierda();
+  parar();
+}
+
+void parar(){
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, LOW);
+     digitalWrite(IN3, LOW);
+    digitalWrite(IN4, LOW);
+    digitalWrite(ENA,LOW);
+    digitalWrite(ENB, LOW);
+    lcd.setCursor(0,0);
+    lcd.print("Parado");
     delay(2000);
 }
 
-
 void movimientoAdelante(){
-     encoder.attachFullQuad(EncA, EncB);
-    digitalWrite(IN3, LOW);
-    digitalWrite(IN4, HIGH);
-    analogWrite(motorPWM, 125);
-    delay(5000)
+    //Motor derecho asociados EL PIN 16 y 4
+    digitalWrite(IN1, HIGH);
+    digitalWrite(IN2, LOW);
+    digitalWrite(ENA, HIGH);
+    //Motor izquierdo asociados EL PIN 17, 5  
+    digitalWrite(IN3, HIGH);
+    digitalWrite(IN4, LOW);
+    digitalWrite(ENB, HIGH);
+    lcd.setCursor(0,0);
+    lcd.print("Adelante");
+    // Configurar velocidad del motor A mediante PWM
+    analogWrite(ENA, 127);  // Ajusta el valor (0-255) para controlar la velocidad
+
+    // Configurar velocidad del motor B mediante PWM
+    analogWrite(ENB, 127);  // Ajusta el valor (0-255) para controlar la velocidad
+    delay(3000);
 }
-
-
 void movimientoReversa(){
-    digitalWrite(IN3,HIGH); //encendemos giro a la izquierda
-    digitalWrite(IN4,LOW); //apagamos giro a la derecha
-    digitalWrite(ENA,HIGH); //habilitamos el motor a través del puente H
-    digitalWrite(IN1,HIGH); //encendemos giro a la izquierda
-    digitalWrite(IN2,LOW); //apagamos giro a la derecha
-    digitalWrite(ENB,HIGH); //habilitamos el motor a través del puente H
-}
-void movimientoIzquierda(){
+      //Motor derecho asociados EL PIN 16 y 4
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, HIGH);
+    digitalWrite(ENA, HIGH);
+    //Motor izquierdo asociados EL PIN 17, 5  
     digitalWrite(IN3, LOW);
     digitalWrite(IN4, HIGH);
+    digitalWrite(ENB, HIGH);
+    lcd.setCursor(0,0);
+    lcd.print("Reversa");
+    // Configurar velocidad del motor A mediante PWM
+    analogWrite(ENA, 127);  // Ajusta el valor (0-255) para controlar la velocidad
+
+    // Configurar velocidad del motor B mediante PWM
+    analogWrite(ENB, 127);  // Ajusta el valor (0-255) para controlar la velocidad
+    delay(3000);
+}
+
+void movimientoIzquierda(){
+   //Motor derecho asociados EL PIN 16 y 4
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, LOW);
-    digitalWrite(ENB,HIGH); //habilitamos el motor a través del puente H
-    digitalWrite(ENA, LOW); 
-    Serial.println("Derecha"); //Imprimimos "Levógiro"
+    digitalWrite(ENA, HIGH);
+    //Motor izquierdo asociados EL PIN 17, 5  
+    digitalWrite(IN3, HIGH);
+    digitalWrite(IN4, LOW);
+    digitalWrite(ENB, HIGH);
+    lcd.setCursor(0,0);
+    lcd.print("Izquierda");
+    // Configurar velocidad del motor A mediante PWM
+    analogWrite(ENA, 127);  // Ajusta el valor (0-255) para controlar la velocidad
+
+    // Configurar velocidad del motor B mediante PWM
+    analogWrite(ENB, 127);  // Ajusta el valor (0-255) para controlar la velocidad
+    delay(710);
 }
 
 void movimientoDerecha(){
-    movimientoAdelante();
-    delay(100);
-    
+   //Motor derecho asociados EL PIN 16 y 4
+    digitalWrite(IN1, HIGH);
+    digitalWrite(IN2, LOW);
+    digitalWrite(ENA, HIGH);
+    //Motor izquierdo asociados EL PIN 17, 5  
     digitalWrite(IN3, LOW);
     digitalWrite(IN4, LOW);
-    digitalWrite(IN1, LOW);
-    digitalWrite(IN2, HIGH);
-    digitalWrite(ENB, LOW); //habilitamos el motor a través del puente H
-    digitalWrite(ENA, HIGH); 
-    Serial.println("Izquierda"); //Imprimimos "Levógiro"
+    digitalWrite(ENB, LOW);
+    lcd.setCursor(0,0);
+    lcd.print("Derecha");
+    // Configurar velocidad del motor A mediante PWM
+    analogWrite(ENA, 127);  // Ajusta el valor (0-255) para controlar la velocidad
+
+    // Configurar velocidad del motor B mediante PWM
+    analogWrite(ENB, 127);  // Ajusta el valor (0-255) para controlar la velocidad
+    delay(710);
 }
