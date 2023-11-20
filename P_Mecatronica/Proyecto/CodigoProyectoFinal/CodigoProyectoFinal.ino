@@ -1,15 +1,25 @@
 #define IN1 33 //Declara el giro del motor a la izquierda (2)
 #define IN2 25 //Declara el giro del motor a la derecha (2)
+#define ENB 14 //Permite la activacion de un motor en el puente H (2)
 /*--------------------------------------------------*/
 #define IN3 26 //Declara el giro del motor a la izquierda
 #define IN4 27 //Declara el giro del motor a la derecha
 #define ENA 32 //Permite la activación de un motor en el puente H
-#define ENB 14 //Permite la activacion de un motor en el puente H (2)
 /*-------------------*/
 //LCD
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
+/*--------------------------------*/
+//Infrarrojo
+#define infroj3 18 
+#define infroj1 5 
+#define infroj2 17
+#define infroj4 19
 
+
+
+
+/*¨*/
 
 #include "BluetoothSerial.h"
 BluetoothSerial SerialBT;
@@ -26,6 +36,11 @@ void setup() { //Declara las variables del puente H como outputs y las del encod
   pinMode(IN2,OUTPUT);
   pinMode(ENB,OUTPUT);
 
+  pinMode (infroj1, INPUT); // Configuracion de sensores infrarojos
+  pinMode (infroj2, INPUT);
+  pinMode (infroj3, INPUT);
+  pinMode (infroj4, INPUT);
+
   Serial.begin(115200); //Inicializamos el serial en 115200 baudios
   SerialBT.begin("Equipo1ESP");
   lcd.init();
@@ -33,10 +48,7 @@ void setup() { //Declara las variables del puente H como outputs y las del encod
 }
 
 void loop() {
-  movimientoAdelante();
-  parar();
-  movimientoIzquierda();
-  parar();
+  obstaculos(3000);
 }
 
 void parar(){
@@ -51,7 +63,7 @@ void parar(){
     delay(2000);
 }
 
-void movimientoAdelante(){
+void movimientoAdelante(int delayM){
     //Motor derecho asociados EL PIN 16 y 4
     digitalWrite(IN1, HIGH);
     digitalWrite(IN2, LOW);
@@ -67,9 +79,9 @@ void movimientoAdelante(){
 
     // Configurar velocidad del motor B mediante PWM
     analogWrite(ENB, 127);  // Ajusta el valor (0-255) para controlar la velocidad
-    delay(3000);
+    delay(delayM);
 }
-void movimientoReversa(){
+void movimientoReversa(int delayM){
       //Motor derecho asociados EL PIN 16 y 4
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, HIGH);
@@ -85,10 +97,10 @@ void movimientoReversa(){
 
     // Configurar velocidad del motor B mediante PWM
     analogWrite(ENB, 127);  // Ajusta el valor (0-255) para controlar la velocidad
-    delay(3000);
+    delay(delayM);
 }
 
-void movimientoIzquierda(){
+void movimientoDerecha(int delayM){
    //Motor derecho asociados EL PIN 16 y 4
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, LOW);
@@ -98,16 +110,16 @@ void movimientoIzquierda(){
     digitalWrite(IN4, LOW);
     digitalWrite(ENB, HIGH);
     lcd.setCursor(0,0);
-    lcd.print("Izquierda");
+    lcd.print("Derecha");
     // Configurar velocidad del motor A mediante PWM
     analogWrite(ENA, 127);  // Ajusta el valor (0-255) para controlar la velocidad
 
     // Configurar velocidad del motor B mediante PWM
     analogWrite(ENB, 127);  // Ajusta el valor (0-255) para controlar la velocidad
-    delay(710);
+    delay(delayM);
 }
 
-void movimientoDerecha(){
+void movimientoIzquierda(int delayM){
    //Motor derecho asociados EL PIN 16 y 4
     digitalWrite(IN1, HIGH);
     digitalWrite(IN2, LOW);
@@ -117,11 +129,33 @@ void movimientoDerecha(){
     digitalWrite(IN4, LOW);
     digitalWrite(ENB, LOW);
     lcd.setCursor(0,0);
-    lcd.print("Derecha");
+    lcd.print("Izquierda");
     // Configurar velocidad del motor A mediante PWM
     analogWrite(ENA, 127);  // Ajusta el valor (0-255) para controlar la velocidad
 
     // Configurar velocidad del motor B mediante PWM
     analogWrite(ENB, 127);  // Ajusta el valor (0-255) para controlar la velocidad
-    delay(710);
+    delay(delayM);
 }
+
+void obstaculos(int delayInf){
+    int inf3 = digitalRead(infroj3);
+    int inf1 = digitalRead(infroj1);
+    int inf2 = digitalRead(infroj2);
+    int inf4 = digitalRead(infroj4);
+    bool  arrInf[] = {inf1, inf2, inf3, inf4};
+    int flagsObstaculos [] = {0,0,0,0};
+
+    for (int i=0; i < 4; i ++){
+     if (!arrInf[i]){
+        flagsObstaculos[i] = 1; 
+     }
+    }
+
+    Serial.println("Obst 1:"+String(flagsObstaculos[0])+" "+ " Obst2: " + String(flagsObstaculos[1]) + " Obs3: " + String(flagsObstaculos[2]) + " Obst4: " +String(flagsObstaculos[3])+" | ");
+    lcd.setCursor(0,0);   // Establece la posición del cursor en la columna 0, fila 0
+    lcd.print(String(flagsObstaculos[0])+" "+String(flagsObstaculos[1]));
+    lcd.setCursor(0,1); 
+    lcd.print(String(flagsObstaculos[2])+" "+String(flagsObstaculos[3]));
+    delay(delayInf); 
+  }
