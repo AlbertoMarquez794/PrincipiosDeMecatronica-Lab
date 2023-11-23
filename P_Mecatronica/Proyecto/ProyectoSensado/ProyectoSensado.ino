@@ -5,6 +5,15 @@
 #define IN3 26 //Declara el giro del motor a la izquierda
 #define IN4 27 //Declara el giro del motor a la derecha
 #define ENA 32 //Permite la activación de un motor en el puente H
+
+/*-----------------------------------*/
+//Encoder
+#define EncA1 4 // Pin A del encoder 1
+#define EncA2 15 // Pin A del encoder 2
+#define EncB1 2 // Pin B del encoder 1
+#define EncB2 16 // Pin B del encoder 2
+
+
 /*-------------------*/
 //LCD
 #include <Wire.h>
@@ -34,10 +43,6 @@ int freq2 = 1000;
 int resolution2 = 8;
 
 /*--------------------------------*/
-#define EncA1 4 // Pin A del encoder 1
-#define EncA2 15 // Pin A del encoder 2
-#define EncB1 2 // Pin B del encoder 1
-#define EncB2 16 // Pin B del encoder 2
 volatile long pulsesDer = 0;
 volatile long pulsesIzq = 0;
 
@@ -78,6 +83,8 @@ void setup() { //Declara las variables del puente H como outputs y las del encod
   ledcSetup(channel2, freq2, resolution2);
   ledcAttachPin(ENB, channel2);
 
+  
+
 
   /*Configuración del fotoresistor*/
 
@@ -97,6 +104,8 @@ void loop() {
      fotoresistor();
      obstaculos();
      ultrasonico();
+     Serial.println();
+     delay(4000);
      
 }
 
@@ -126,6 +135,8 @@ void movimientoAdelante(){
     digitalWrite(IN3, HIGH);
     digitalWrite(IN4, LOW);
     digitalWrite(ENB, HIGH);
+    digitalWrite(EncB2, HIGH);
+    digitalWrite(EncB1, HIGH);
     lcd.setCursor(0,0);
     lcd.print("Adelante");
     ledcWrite(channel, 125);
@@ -197,8 +208,8 @@ void ultrasonico(){
 
   distanciaUlt = 0.0343 * duracionUlt * 0.5;
 
-  lcd.setCursor(0,0); 
-  lcd.print("L:"+String(distanciaUltrasonico));
+  lcd.setCursor(7,0); 
+  lcd.print(" L: " + String(distanciaUlt));
   Serial.print(" Distancia:"+String(distanciaUlt)+" | ");
 }
 
@@ -209,7 +220,7 @@ void fotoresistor(){
   lcd.print("I:" + String(luzIzq) + " | D:" + String(luzDer));
   
 
-  Serial.print("LDR_Izq:"+String(luzIzq)+" | LDR_Der:"+String(luzDer)+" |");
+  Serial.print("LDR_Izq:"+String(luzIzq)+" | LDR_Der:"+String(luzDer)+" |\n");
 }
 
 void obstaculos(){
@@ -231,5 +242,21 @@ void obstaculos(){
 
     Serial.print(" Obst: "+String(flagsObstaculos[0])+" " + String(flagsObstaculos[1]) + " " + String(flagsObstaculos[2]) + " " + String(flagsObstaculos[3])+" | ");
     lcd.setCursor(0,0);   // Establece la posición del cursor en la columna 0, fila 0
-    lcd.print(String(flagsObstaculos[3])+" "+String(flagsObstaculos[2])+ " " + String(flagsObstaculos[1]) + " " + String(flagsObstaculos[0]) + " | "); 
+    lcd.print(String(flagsObstaculos[3]) + String(flagsObstaculos[2]) + String(flagsObstaculos[1]) + String(flagsObstaculos[0]) + "   "); 
+  }
+
+   void Encoder_izquierdo(){
+    if(digitalRead(EncB1)==HIGH){
+        pulsesIzq++;
+    } else {
+      pulsesIzq--;
+    }  
+  }
+  
+  void Encoder_derecho(){
+    if(digitalRead(EncB2)==HIGH){
+      pulsesDer++;
+    } else {
+      pulsesDer--;
+    }
   }
